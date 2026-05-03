@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÑØÛR - Secure Access</title>
+    <title>ÑØÛR - Ultra Secure & Audio</title>
     <style>
         :root { --accent: #ff0055; --secondary: #00f2ff; --bg: #050505; }
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
@@ -11,28 +11,33 @@
 
         #lock-screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
         input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; color: white; font-size: 1.5rem; width: 350px; text-align: center; outline: none; }
-        .btn-modern { margin-top: 30px; padding: 15px 50px; font-size: 1.2rem; background: white; color: black; border: none; border-radius: 100px; cursor: pointer; font-weight: 700; text-transform: uppercase; }
+        .btn-modern { margin-top: 30px; padding: 15px 50px; font-size: 1.2rem; background: white; color: black; border: none; border-radius: 100px; cursor: pointer; font-weight: 700; text-transform: uppercase; transition: 0.3s; }
+        
         #main-content { display: none; width: 100%; text-align: center; }
         .glass-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); padding: 60px; border-radius: 40px; max-width: 800px; width: 90%; margin: 0 auto; }
+        
         .text-huge { font-size: 4.5rem; font-weight: 900; margin-bottom: 40px; }
         .page { display: none; animation: fadeIn 0.5s forwards; }
         @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
 
         #truth-box { background: #00ff88; color: black; position: fixed; z-index: 999; transition: all 0.1s; white-space: nowrap; left: 50%; top: 50%; transform: translate(-50%, -50%); }
         #lie-box { background: #ff3333; color: white; }
+        
         .finger-icon { position: fixed; font-size: 80px; pointer-events: none; animation: shoot 2s linear forwards; z-index: 999; }
         @keyframes shoot { from {top: 110vh;} to {top: -20vh;} }
+        
         .glitch { font-size: 100px; font-weight: 950; color: #ff0055; animation: g 0.1s infinite; }
         @keyframes g { 0% {transform: translateX(2px);} 50% {transform: translateX(-2px);} }
+        #error-area { font-size: 50px; margin-top: 20px; display: none; }
     </style>
 </head>
-<body oncontextmenu="return false;"> <!-- منع كليك يمين -->
+<body oncontextmenu="return false;">
 
     <div id="lock-screen">
         <h2 id="lock-header" style="font-size: 2.5rem; margin-bottom: 20px;">اكتب الباسورد يا عبيط</h2>
         <input type="password" id="pass-field" autocomplete="off">
         <button class="btn-modern" onclick="auth()">Access</button>
-        <div id="error-area" style="font-size: 50px; margin-top: 20px; display: none;">غلط يا روح ماما 🖕</div>
+        <div id="error-area">غلط يا روح ماما 🖕</div>
     </div>
 
     <div id="main-content">
@@ -63,22 +68,56 @@
     </div>
 
     <script>
-        // تشفير بسيط للباسورد عشان ميبانش (nour 3amy w 3am 3yaly)
         const _0xHASH = "bm91ciAzYW15IHcgM2FtIDN5YWx5"; 
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // منع اختصارات الهكر (F12, Ctrl+Shift+I, etc)
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
-                return false;
+        // وظيفة توليد الأصوات
+        function playSnd(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if(type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } 
+            else if(type === 'evade') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
             }
-        };
+            else if(type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+            else if(type === 'boom') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(50, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            }
+        }
+
+        document.onkeydown = (e) => { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false; };
 
         const truthBtn = document.getElementById('truth-box');
         document.addEventListener('mousemove', (e) => {
             if (document.getElementById('p2').style.display !== 'block') return;
             const rect = truthBtn.getBoundingClientRect();
             const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
-            if (dist < 180) {
+            if (dist < 150) {
+                playSnd('evade');
                 const m = 150;
                 truthBtn.style.left = (Math.random() * (window.innerWidth - rect.width - m) + m/2) + 'px';
                 truthBtn.style.top = (Math.random() * (window.innerHeight - rect.height - m) + m/2) + 'px';
@@ -88,23 +127,26 @@
 
         function auth() {
             const val = document.getElementById('pass-field').value;
-            // التحقق من الباسورد المشفر
             if(btoa(val.toLowerCase()) === _0xHASH) {
+                playSnd('click');
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
             } else {
+                playSnd('error');
                 document.getElementById('error-area').style.display = 'block';
                 document.getElementById('lock-header').style.color = 'red';
             }
         }
 
         function go(n) {
+            playSnd('click');
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('p' + n).style.display = 'block';
             truthBtn.style.display = (n === 2) ? 'block' : 'none';
         }
 
         function theEnd() {
+            playSnd('boom');
             go(5);
             setInterval(() => {
                 const f = document.createElement('div');
