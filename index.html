@@ -3,40 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÑØÛR - Ultra Secure & Audio</title>
+    <title>ÑØÛR - Ultra Secure</title>
     <style>
-        :root { --accent: #ff0055; --secondary: #00f2ff; --bg: #050505; }
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        :root { 
+            --accent: #ff0055; 
+            --secondary: #00f2ff; 
+            --bg: #050505; 
+            --glass: rgba(255, 255, 255, 0.05);
+        }
 
-        #lock-screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; color: white; font-size: 1.5rem; width: 350px; text-align: center; outline: none; }
-        .btn-modern { margin-top: 30px; padding: 15px 50px; font-size: 1.2rem; background: white; color: black; border: none; border-radius: 100px; cursor: pointer; font-weight: 700; text-transform: uppercase; transition: 0.3s; }
-        
-        #main-content { display: none; width: 100%; text-align: center; }
-        .glass-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); padding: 60px; border-radius: 40px; max-width: 800px; width: 90%; margin: 0 auto; }
-        
-        .text-huge { font-size: 4.5rem; font-weight: 900; margin-bottom: 40px; }
-        .page { display: none; animation: fadeIn 0.5s forwards; }
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        #truth-box { background: #00ff88; color: black; position: fixed; z-index: 999; transition: all 0.1s; white-space: nowrap; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-        #lie-box { background: #ff3333; color: white; }
+        body { 
+            background-color: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            height: 100vh; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        /* شاشة القفل */
+        #lock-screen { 
+            position: fixed; 
+            inset: 0; 
+            background: radial-gradient(circle at center, #111 0%, #000 100%); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+        }
+
+        input { 
+            background: var(--glass); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 20px; 
+            color: white; 
+            font-size: 1.2rem; 
+            width: 320px; 
+            text-align: center; 
+            outline: none; 
+            backdrop-filter: blur(10px);
+        }
+
+        input:focus { border-color: var(--secondary); box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
+
+        .btn-modern { 
+            margin-top: 25px; 
+            padding: 15px 45px; 
+            font-size: 1.1rem; 
+            background: #fff; 
+            color: #000; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
+            font-weight: 800; 
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-modern:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(255,255,255,0.1); }
+        .btn-modern:active { transform: translateY(1px); }
+
+        /* المحتوى الرئيسي */
+        #main-content { display: none; width: 100%; opacity: 0; transform: scale(0.9); }
         
-        .finger-icon { position: fixed; font-size: 80px; pointer-events: none; animation: shoot 2s linear forwards; z-index: 999; }
-        @keyframes shoot { from {top: 110vh;} to {top: -20vh;} }
-        
-        .glitch { font-size: 100px; font-weight: 950; color: #ff0055; animation: g 0.1s infinite; }
-        @keyframes g { 0% {transform: translateX(2px);} 50% {transform: translateX(-2px);} }
-        #error-area { font-size: 50px; margin-top: 20px; display: none; }
+        .glass-container { 
+            background: var(--glass); 
+            backdrop-filter: blur(25px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 50px 30px; 
+            border-radius: 40px; 
+            max-width: 600px; 
+            width: 90%; 
+            margin: 0 auto; 
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .text-huge { font-size: 3rem; font-weight: 900; margin-bottom: 30px; line-height: 1.2; }
+
+        .page { display: none; animation: slideIn 0.6s ease-out forwards; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px) rotateX(-10deg); }
+            to { opacity: 1; transform: translateY(0) rotateX(0); }
+        }
+
+        /* زر الحقيقة الهارب */
+        #truth-box { 
+            position: fixed; 
+            z-index: 999; 
+            background: #00ff88; 
+            color: black; 
+            left: 50%; 
+            top: 50%; 
+            transform: translate(-50%, -50%);
+            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+
+        #lie-box { background: var(--accent); color: white; }
+
+        /* الأنيميشن الجنوني في النهاية */
+        .finger-icon { position: fixed; font-size: 60px; pointer-events: none; z-index: 9999; animation: flyUp 1.5s linear forwards; }
+        @keyframes flyUp { 
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+        }
+
+        .glitch { font-size: 5rem; font-weight: 900; color: var(--accent); animation: glitchAnim 0.2s infinite; text-shadow: 3px 3px var(--secondary); }
+        @keyframes glitchAnim {
+            0% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(1px, -1px); }
+        }
+
+        #error-area { color: var(--accent); font-weight: bold; margin-top: 15px; display: none; animation: shake 0.4s; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="lock-screen">
-        <h2 id="lock-header" style="font-size: 2.5rem; margin-bottom: 20px;">اكتب الباسورد يا عبيط</h2>
-        <input type="password" id="pass-field" autocomplete="off">
-        <button class="btn-modern" onclick="auth()">Access</button>
+        <h2 id="lock-header" style="margin-bottom: 25px;">أدخل رمز الوصول</h2>
+        <input type="password" id="pass-field" placeholder="الباسورد يا عبيط..." autocomplete="off">
+        <button class="btn-modern" onclick="auth()">دخول</button>
         <div id="error-area">غلط يا روح ماما 🖕</div>
     </div>
 
@@ -44,23 +145,28 @@
         <div class="glass-container">
             <div class="page" style="display: block;" id="p1">
                 <h1 class="text-huge">هل هي بتحبك يا ديشا ؟</h1>
-                <button class="btn-modern" style="background: var(--secondary);" onclick="go(2)">استمرار التحقق</button>
+                <button class="btn-modern" style="background: var(--secondary);" onclick="go(2)">بدء التحقق</button>
             </div>
+
             <div class="page" id="p2">
                 <h1 class="text-huge">اختار الحقيقة</h1>
-                <div style="height: 200px; display: flex; align-items: center; justify-content: center; gap: 40px;">
-                    <button class="btn-modern" id="truth-box">الحقيقه</button>
-                    <button class="btn-modern" id="lie-box" onclick="go(3)">الكذب</button>
+                <div style="height: 150px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+                    <button class="btn-modern" id="truth-box">بتموت فيا</button>
+                    <button class="btn-modern" id="lie-box" onclick="go(3)">بتكرهني</button>
                 </div>
             </div>
+
             <div class="page" id="p3">
-                <h1 class="text-huge" style="color:var(--accent)">لا يا اسود</h1>
-                <button class="btn-modern" onclick="go(4)">ليه ؟</button>
+                <h1 class="text-huge" style="color:var(--accent)">الإجابة صحيحة!</h1>
+                <p style="margin-bottom: 20px;">عايز تعرف ليه؟</p>
+                <button class="btn-modern" onclick="go(4)">قولي ليه</button>
             </div>
+
             <div class="page" id="p4">
-                <h1 class="text-huge" style="color:var(--accent)">عشان بتحب نور</h1>
-                <button class="btn-modern" style="background:white;" onclick="theEnd()">بهزر معاك خلاص.. دوس هنا</button>
+                <h1 class="text-huge">عشان هي بتحب "نور"</h1>
+                <button class="btn-modern" onclick="theEnd()">كنت بهزر.. دوس هنا بجد</button>
             </div>
+
             <div class="page" id="p5">
                 <h1 class="glitch">خد يا اهبل</h1>
             </div>
@@ -69,59 +175,64 @@
 
     <script>
         const _0xHASH = "bm91ciAzYW15IHcgM2FtIDN5YWx5"; 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioCtx;
 
-        // وظيفة توليد الأصوات
-        function playSnd(type) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            if(type === 'click') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            } 
-            else if(type === 'evade') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-            else if(type === 'error') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-            }
-            else if(type === 'boom') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(50, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        document.onkeydown = (e) => { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false; };
+        function playSnd(type) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            const sounds = {
+                click: { f: 400, t: 'sine', d: 0.1, g: 0.1 },
+                evade: { f: 800, t: 'triangle', d: 0.1, g: 0.05 },
+                error: { f: 120, t: 'sawtooth', d: 0.4, g: 0.2 },
+                boom: { f: 60, t: 'square', d: 0.6, g: 0.3 }
+            };
+
+            const s = sounds[type];
+            osc.type = s.t;
+            osc.frequency.setValueAtTime(s.f, audioCtx.currentTime);
+            gain.gain.setValueAtTime(s.g, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + s.d);
+            osc.start(); osc.stop(audioCtx.currentTime + s.d);
+        }
+
+        // منع الاختصارات
+        document.onkeydown = (e) => {
+            if (e.keyCode == 123 || (e.ctrlKey && (e.shiftKey && (e.keyCode == 73 || e.keyCode == 74) || e.keyCode == 85))) return false;
+            if (e.key === "Enter") auth();
+        };
 
         const truthBtn = document.getElementById('truth-box');
         document.addEventListener('mousemove', (e) => {
             if (document.getElementById('p2').style.display !== 'block') return;
+            
             const rect = truthBtn.getBoundingClientRect();
-            const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
-            if (dist < 150) {
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            
+            const btnX = rect.left + rect.width / 2;
+            const btnY = rect.top + rect.height / 2;
+            
+            const dist = Math.hypot(mouseX - btnX, mouseY - btnY);
+
+            if (dist < 120) {
                 playSnd('evade');
-                const m = 150;
-                truthBtn.style.left = (Math.random() * (window.innerWidth - rect.width - m) + m/2) + 'px';
-                truthBtn.style.top = (Math.random() * (window.innerHeight - rect.height - m) + m/2) + 'px';
-                truthBtn.style.transform = 'none';
+                const pad = 100;
+                const newX = Math.random() * (window.innerWidth - rect.width - pad) + rect.width/2;
+                const newY = Math.random() * (window.innerHeight - rect.height - pad) + rect.height/2;
+                
+                truthBtn.style.left = newX + 'px';
+                truthBtn.style.top = newY + 'px';
+                truthBtn.style.transform = 'translate(-50%, -50%) scale(0.9)';
             }
         });
 
@@ -129,12 +240,20 @@
             const val = document.getElementById('pass-field').value;
             if(btoa(val.toLowerCase()) === _0xHASH) {
                 playSnd('click');
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
+                const ls = document.getElementById('lock-screen');
+                ls.style.opacity = '0';
+                setTimeout(() => {
+                    ls.style.display = 'none';
+                    const mc = document.getElementById('main-content');
+                    mc.style.display = 'block';
+                    setTimeout(() => { mc.style.opacity = '1'; mc.style.transform = 'scale(1)'; }, 50);
+                }, 400);
             } else {
                 playSnd('error');
-                document.getElementById('error-area').style.display = 'block';
-                document.getElementById('lock-header').style.color = 'red';
+                const err = document.getElementById('error-area');
+                err.style.display = 'block';
+                document.getElementById('pass-field').style.borderColor = 'red';
+                setTimeout(() => err.style.display = 'none', 2000);
             }
         }
 
@@ -148,13 +267,15 @@
         function theEnd() {
             playSnd('boom');
             go(5);
-            setInterval(() => {
+            const interval = setInterval(() => {
                 const f = document.createElement('div');
-                f.className = 'finger-icon'; f.innerText = '🖕';
+                f.className = 'finger-icon';
+                f.innerText = '🖕';
                 f.style.left = Math.random() * 90 + 'vw';
                 document.body.appendChild(f);
-                setTimeout(() => f.remove(), 2000);
-            }, 100);
+                setTimeout(() => f.remove(), 1500);
+            }, 80);
+            setTimeout(() => clearInterval(interval), 10000);
         }
     </script>
 </body>
