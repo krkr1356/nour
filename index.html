@@ -3,76 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÑØÛR - Ultra Secure</title>
+    <title>ÑØÛR - Cyber Terminal</title>
     <style>
-        :root { --accent: #ff0055; --secondary: #00f2ff; --bg: #050505; }
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        body { background: var(--bg); color: white; font-family: sans-serif; height: 100vh; width: 100vw; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        :root { 
+            --accent: #ff0055; 
+            --secondary: #00f2ff; 
+            --matrix: #00ff88;
+            --bg: #030303; 
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; font-family: 'Courier New', Courier, monospace; }
+        body { background: var(--bg); color: white; height: 100vh; width: 100vw; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
 
-        #lock-screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; color: white; width: 280px; text-align: center; outline: none; }
+        canvas { position: fixed; inset: 0; z-index: 1; opacity: 0.15; }
+
+        #lock-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(10px); }
         
-        .btn-modern { padding: 12px 35px; border-radius: 50px; border: none; cursor: pointer; font-weight: bold; transition: transform 0.1s; }
+        .terminal-box { border: 2px solid var(--accent); padding: 30px; border-radius: 20px; background: rgba(5,5,5,0.9); box-shadow: 0 0 30px var(--accent); text-align: center; max-width: 350px; width: 90%; animation: pulse-border 2s infinite alternate; }
+        @keyframes pulse-border { from { box-shadow: 0 0 15px var(--accent); } to { box-shadow: 0 0 35px var(--accent); } }
+
+        input { background: rgba(255,255,255,0.05); border: 1px solid var(--accent); padding: 15px; border-radius: 12px; color: #fff; width: 100%; text-align: center; outline: none; font-size: 1.2rem; letter-spacing: 3px; box-shadow: inset 0 0 10px rgba(255,0,85,0.2); }
         
-        #main-content { display: none; width: 100%; text-align: center; }
-        .glass-container { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); padding: 40px; border-radius: 30px; width: 90%; max-width: 500px; margin: auto; }
+        .btn-modern { padding: 14px 40px; border-radius: 50px; border: none; cursor: pointer; font-weight: bold; font-size: 1.1rem; text-transform: uppercase; transition: all 0.1s ease; position: relative; overflow: hidden; box-shadow: 0 0 15px rgba(255,255,255,0.1); display: inline-block; }
+        .btn-modern:active { transform: scale(0.95); }
 
-        .page { display: none; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        .btn-neon-pink { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent); }
+        .btn-neon-pink:hover { box-shadow: 0 0 35px var(--accent); }
+        .btn-neon-cyan { background: var(--secondary); color: black; box-shadow: 0 0 20px var(--secondary); }
+        
+        #main-content { display: none; width: 100%; text-align: center; z-index: 5; }
+        .glass-container { background: rgba(255,255,255,0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.05); padding: 50px 40px; border-radius: 30px; width: 90%; max-width: 550px; margin: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
 
-        /* تعديل الزرار الهارب */
+        .page { display: none; animation: glitchIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        @keyframes glitchIn {
+            0% { transform: translate(0) scale(0.9); opacity: 0; }
+            50% { transform: translate(-5px, 2px); opacity: 0.5; }
+            100% { transform: translate(0) scale(1); opacity: 1; }
+        }
+
         #truth-box { 
             position: fixed; 
             z-index: 9999; 
-            background: #00ff88; 
+            background: var(--matrix); 
             color: black;
-            /* نلغي الـ transform تماماً عشان الحسابات تبقا دقيقة */
-            transform: none !important; 
-            transition: left 0.15s ease-out, top 0.15s ease-out;
+            top: 50vh;
+            left: 42vw;
+            box-shadow: 0 0 25px var(--matrix);
+            /* تسريع الحركة لمنع صيد الماوس للزرار */
+            transition: left 0.08s ease-out, top 0.08s ease-out; 
             pointer-events: auto;
         }
 
         #lie-box { background: var(--accent); color: white; }
-        .finger-icon { position: fixed; font-size: 50px; z-index: 999; animation: fly 1s forwards; }
-        @keyframes fly { from {bottom: -10%;} to {bottom: 110%;} }
-        .glitch { font-size: 3rem; color: var(--accent); animation: shake 0.1s infinite; }
-        @keyframes shake { 0% {transform:translate(2px)} 50% {transform:translate(-2px)} }
+        .finger-icon { position: fixed; font-size: 60px; z-index: 9999; animation: flyUp 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; pointer-events: none; }
+        @keyframes flyUp { from { bottom: -15%; transform: rotate(0deg) scale(0.5); } to { bottom: 115%; transform: rotate(360deg) scale(1.5); } }
+        
+        .glitch { font-size: 3.5rem; color: var(--accent); font-weight: 900; animation: shake 0.15s infinite; text-shadow: 3px 3px 0 var(--secondary); }
+        @keyframes shake { 0% {transform:translate(3px, -2px)} 50% {transform:translate(-3px, 2px)} 100% {transform:translate(2px, 1px)} }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
+    <canvas id="matrix-canvas"></canvas>
+
     <div id="lock-screen">
-        <h2 style="margin-bottom:20px;">الباسورد يا عبيط</h2>
-        <input type="password" id="pass-field">
-        <button class="btn-modern" onclick="auth()" style="margin-top:20px;">Access</button>
+        <div class="terminal-box">
+            <h2 style="margin-bottom:25px; color: var(--accent); text-shadow: 0 0 10px var(--accent);">[ SYSTEM LOCKED ]</h2>
+            <p style="margin-bottom: 15px; font-size: 0.9rem; color: #888;">ادخل مفتاح العبور يا عبيط</p>
+            <input type="password" id="pass-field" onkeypress="if(event.key === 'Enter') auth()">
+            <button class="btn-modern btn-neon-pink" onclick="auth()" style="margin-top:25px; width: 100%;">ACCESS SYSTEM</button>
+        </div>
     </div>
 
     <div id="main-content">
         <div class="glass-container">
             <div class="page" style="display: block;" id="p1">
-                <h1>بتحبك يا ديشا؟</h1>
-                <button class="btn-modern" style="background:var(--secondary); margin-top:20px;" onclick="go(2)">تحقق</button>
+                <h1>بتحبك يا ديشا؟ 🤔</h1>
+                <button class="btn-modern btn-neon-cyan" style="margin-top:20px;" onclick="startPrank()">إجراء الفحص الإجباري</button>
             </div>
             <div class="page" id="p2">
-                <h1>اختار الحقيقة</h1>
-                <div style="height: 300px;">
-                    <button class="btn-modern" id="truth-box">بتموت فيا</button>
-                    <button class="btn-modern" id="lie-box" onclick="go(3)" style="margin-top:100px;">بتكرهني</button>
+                <h1 style="color: var(--secondary);">اختار الحقيقة المطلقة</h1>
+                <div style="height: 250px; position: relative;">
+                    <button class="btn-modern" id="truth-box">بتموت فيا 😎</button>
+                    <button class="btn-modern btn-neon-pink" id="lie-box" onclick="go(3)" style="margin-top:90px;">بتكرهني 😢</button>
                 </div>
             </div>
-            <div class="page" id="p3"><h1>عشان بتحب نور</h1><button class="btn-modern" onclick="theEnd()">ماشي</button></div>
-            <div class="page" id="p5"><h1 class="glitch">🖕 خد يا زنجي</h1></div>
+            <div class="page" id="p3">
+                <h1>عشان بتحب <span style="color: var(--accent); text-shadow: 0 0 15px var(--accent);">نور</span> !</h1>
+                <button class="btn-modern btn-neon-cyan" style="margin-top: 30px;" onclick="theEnd()">ماشي.. طحن</button>
+            </div>
+            <div class="page" id="p5">
+                <h1 class="glitch">🖕 خد يا زنجي 🖕</h1>
+                <p style="color: var(--matrix); margin-top: 20px;">System Hacked Successfully.</p>
+            </div>
         </div>
     </div>
 
     <script>
-        const _0xHASH = "bm91ciAzYW15IHcgM2FtIDN5YWx5";
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const rainDrops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff88';
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) rainDrops[i] = 0;
+                rainDrops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 30);
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+        function playTone(freq, type, duration) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = type;
+            oscillator.frequency.value = freq;
+            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function playErrorSound() { playTone(120, 'sawtooth', 0.4); setTimeout(() => playTone(90, 'sawtooth', 0.3), 150); }
+        function playSuccessSound() { playTone(500, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.2), 100); }
+        function playEvilLaugh() { 
+            let t = 0;
+            for(let i=0; i<6; i++) {
+                setTimeout(() => playTone(150 - (i*10), 'triangle', 0.25), t);
+                t += 180;
+            }
+        }
+
+        const _0xHASH = "MTIzNDU2Nzg5MTA="; 
         const truthBtn = document.getElementById('truth-box');
+        let currentScale = 1;
 
         function auth() {
             if(btoa(document.getElementById('pass-field').value.toLowerCase()) === _0xHASH) {
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
+                playSuccessSound();
+                document.getElementById('lock-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('lock-screen').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                }, 300);
+            } else {
+                playErrorSound();
+                let inputField = document.getElementById('pass-field');
+                inputField.style.borderColor = 'red';
+                inputField.value = '';
+                inputField.placeholder = "غلط يا غبي! ❌";
+                setTimeout(() => { inputField.style.borderColor = 'var(--accent)'; inputField.placeholder = ''; }, 1000);
             }
         }
 
@@ -81,37 +176,57 @@
             document.getElementById('p' + n).style.display = 'block';
         }
 
-        // الحسابات الدقيقة للهروب
-        document.addEventListener('mousemove', (e) => {
+        function startPrank() {
+            go(2);
+            playEvilLaugh();
+        }
+
+        function escapeButton(e) {
             if (document.getElementById('p2').style.display !== 'block') return;
 
             const rect = truthBtn.getBoundingClientRect();
-            // مركز الزرار
             const btnX = rect.left + rect.width / 2;
             const btnY = rect.top + rect.height / 2;
             
-            // المسافة بين الماوس والزرار
-            const dist = Math.hypot(e.clientX - btnX, e.clientY - btnY);
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
 
+            if (!clientX || !clientY) return;
+
+            const dist = Math.hypot(clientX - btnX, clientY - btnY);
+
+            // تم تكبير مسافة الحساسية لـ 150 بكسل عشان يهرب بدري أكتر
             if (dist < 150) {
-                const padding = 20; // مسافة أمان من حافة الشاشة
+                // ميزة التقفيل: قفل الضغط تماماً بمجرد الاقتراب
+                truthBtn.style.pointerEvents = 'none'; 
                 
-                // حساب أقصى مسافة مسموحة (عرض الشاشة - عرض الزرار - الأمان)
+                playTone(Math.random() * 300 + 400, 'sine', 0.05); 
+                
+                const padding = 60; 
                 const maxX = window.innerWidth - rect.width - padding;
                 const maxY = window.innerHeight - rect.height - padding;
 
-                // توليد إحداثيات عشوائية "آمنة"
-                let newX = Math.random() * maxX;
-                let newY = Math.random() * maxY;
+                let newX = Math.random() * (maxX - padding) + padding;
+                let newY = Math.random() * (maxY - padding) + padding;
 
-                // التأكد إنها مش أقل من الأمان
-                newX = Math.max(padding, newX);
-                newY = Math.max(padding, newY);
+                newX = Math.max(padding, Math.min(newX, maxX));
+                newY = Math.max(padding, Math.min(newY, maxY));
+
+                if(currentScale > 0.45) currentScale -= 0.07;
 
                 truthBtn.style.left = newX + 'px';
                 truthBtn.style.top = newY + 'px';
+                truthBtn.style.transform = `scale(${currentScale})`;
+                
+                // إعادة فتح إمكانية اللمس بعد انتهاء حركة الهروب بثانية كنوع من التمويه
+                setTimeout(() => {
+                    truthBtn.style.pointerEvents = 'auto';
+                }, 100);
             }
-        });
+        }
+
+        document.addEventListener('mousemove', escapeButton);
+        truthBtn.addEventListener('touchstart', escapeButton);
 
         function theEnd() {
             go(5);
@@ -120,8 +235,9 @@
                 f.className = 'finger-icon'; f.innerText = '🖕';
                 f.style.left = Math.random() * 90 + 'vw';
                 document.body.appendChild(f);
-                setTimeout(() => f.remove(), 1000);
-            }, 100);
+                playTone(Math.random() * 100 + 80, 'sawtooth', 0.1);
+                setTimeout(() => f.remove(), 1200);
+            }, 120);
         }
     </script>
 </body>
